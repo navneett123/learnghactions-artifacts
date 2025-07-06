@@ -41,5 +41,11 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
+            - name: Get Build Artifacts
+              uses: actions/download-artifacts@v4
+              with:
+                name: report-file
+                path: build/report.txt
+
             - name: deploy
               run: echo "Deploying....."
