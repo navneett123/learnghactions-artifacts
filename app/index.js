@@ -1,28 +1,32 @@
-const express = require('express');
+// app/index.js
 const fs = require('fs');
-const path = require('path');
+const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static(path.join(__dirname, 'public')));
+const port = 3000;
 
 if (process.argv.includes('--build')) {
-  const content = `✅ Build completed successfully!\nTimestamp: ${new Date().toISOString()}`;
-  if (!fs.existsSync('./build')) fs.mkdirSync('./build');
-  fs.writeFileSync('./build/report.txt', content);
-  console.log('✅ Report generated at build/report.txt');
-  process.exit(0);
+  const content = `Test Build Report\nTimestamp: ${new Date().toISOString()}\n✅ Build Passed`;
+  if (!fs.existsSync('build')) fs.mkdirSync('build');
+  fs.writeFileSync('build/report.txt', content);
+  console.log('Report generated!');
+  process.exit(0); // Exit after build
 }
 
+// Web server for report view
 app.get('/api/report', (req, res) => {
-  const filePath = path.join(__dirname, '../build/report.txt');
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'Report not found' });
+  if (fs.existsSync('./build/report.txt')) {
+    const report = fs.readFileSync('./build/report.txt', 'utf-8');
+    res.send(report);
+  } else {
+    res.status(404).send('Report not found');
   }
-  const data = fs.readFileSync(filePath, 'utf-8');
-  res.json({ report: data });
 });
 
-app.listen(PORT, () => {
-  console.log(`🌐 Server running at http://localhost:${PORT}`);
-});
+
+
+if (require.main === module) {
+  app.listen(port, () => console.log(`Server running on port ${port}`));
+}
+
+
+module.exports = app;
