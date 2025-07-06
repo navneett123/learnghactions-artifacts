@@ -1,1 +1,45 @@
+name: Events Workflow
+on:
+    push:
+        branches:
+            - master
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get Code
+              uses: actions/checkout@v3
 
+            - name: Install Dependencies
+              run: npm ci
+
+            - name: Lint code
+              run: npm run lint
+
+            - name: Test code
+              run: npm run test
+
+    build:
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get Code
+              uses: actions/checkout@v3
+
+            - name: Install dependencies
+              run: npm ci
+              
+            - name: Build Website
+              run: npm run build
+
+            - name: Upload artifacts
+              uses: actions/upload-artifacts@v3
+              with:
+                name: report-file
+                path: build/report.txt
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: deploy
+              run: echo "Deploying....."
